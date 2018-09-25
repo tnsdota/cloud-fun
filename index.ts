@@ -237,25 +237,31 @@ export const getNoticeByDate = functions.https.onRequest((request, response) => 
 export const createNotice = functions.https.onRequest((request, response) => {
     response.set('Access-Control-Allow-Origin', "*")
     response.set('Access-Control-Allow-Methods', 'GET, POST')
-    const ipdatetime = request.query.datetime; //date time object with clients date and time
+    const ipdatetime = request.query.datetime+""; //date time object with clients date and time
     //const description = request.query.description;
     //const pic = request.query.pic; //URL of the pic uploaded in firebase storage
     //const readreceipt = request.query.readreceipt; //tmp
-    const ipsubject = request.query.subject; //subject of the notice
+    const ipsubject = request.query.subject+""; //subject of the notice
     //const type = request.query.type; // tenant/admin/owner
     //const onlydate = request.query.onlydate;
-    const iptenant = request.query.tenant;
-    const ipowner = request.query.owner;
-    const socID = request.query.societyID;
+    const iptenant = request.query.tenant+"";
+    const ipowner = request.query.owner+"";
+    const socID = request.query.societyID+"";
     const db = admin.database();
     const NoticesRef = db.ref("/notices/"+socID);
-    console.log(NoticesRef);
+    //console.log("NoticesRef",NoticesRef);
+
+    //console.log((ipdatetime),ipowner,socID,iptenant,ipsubject);
+    //ipdatetime = ipdatetime+"";
+    //console.log(typeof(ipdatetime),typeof(ipowner),typeof(socID),typeof(iptenant),typeof(ipsubject));
+
     const noticesObject = {
         subject: ipsubject,
         date: ipdatetime,
         tenant: iptenant,
         owner: ipowner
     };
+    //console.log(noticesObject);
 
 
     NoticesRef.child(ipdatetime).update(noticesObject)
