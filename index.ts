@@ -349,8 +349,6 @@ export const updateNotice = functions.https.onRequest((request, response) => {
 
 
 
-
-
 // // All member APIs
 // /*Fetch list of all the members in a particular society. The societyId is passed via the url*/
 export const getMembers = functions.https.onRequest((request,response) => {
@@ -366,6 +364,7 @@ export const getMembers = functions.https.onRequest((request,response) => {
     const Membersref = db.ref("/Members/"+socID);
     
     Membersref.once('value',(snapshot) => {
+        //allMembers = snapshot.val();
         response.status(200).json({member: snapshot.val()});
     })
     .then(function(){
@@ -415,12 +414,12 @@ export const createMember = functions.https.onRequest((request,response) =>{
 // /*updateMember will update the member data. All the data passed via the url. Also, system generated key
 //  currently required to update data.
 // */   
-  export const updateMember = functions.https.onRequest((request,response) =>{
+export const updateMember = functions.https.onRequest((request,response) =>{
     response.set('Access-Control-Allow-Origin', "*")
     response.set('Access-Control-Allow-Methods', 'GET, POST')
     const socID = request.query.societyID;
     const db = admin.database();
-//societyID should be queried.currently hardcoded
+    //societyID should be queried.currently hardcoded
     const key = request.query.key;
     const Membersref = db.ref("/Members/"+socID+"/" + key + "/");
 
@@ -431,7 +430,7 @@ export const createMember = functions.https.onRequest((request,response) =>{
     const contact = request.query.contact;
     const flatno = request.query.flatno;
     const type = request.query.type;
-   // const key = Membersref.push().key;
+    // const key = Membersref.push().key;
     const MemberObject = {
         email: email,
         name: name,
@@ -448,7 +447,7 @@ export const createMember = functions.https.onRequest((request,response) =>{
     .catch(() => {
         response.status(200).send("failure");
     })
-  });
+});
 
 
 export const searchMember = functions.https.onRequest((request,response) =>{
@@ -462,89 +461,289 @@ export const searchMember = functions.https.onRequest((request,response) =>{
     const flatno = request.query.flatno;
 
     const db = admin.database();
-
+    //console.log(allMembers);
     //if email ID is sent in request
     if(email){
-        const MemberRef = db.ref("/Members/").child(socID).orderByChild('email').equalTo(email);
 
-        MemberRef.once('value',function(snap){
-            if(snap.val()){
-                response.status(200).json({member:snap.val()});
+        // ------------ TRY
+        const Membersref = db.ref("/Members/"+socID);
+    
+        Membersref.once('value',(snapshot) => {
+            var allMembers = snapshot.val();
+            //response.status(200).json({member: snapshot.val()});
+            console.log(allMembers);
+
+            //console.log("xyz".indexOf("yz"));         returns starting index ie 1 of string
+
+            //console.log("xyz".indexOf("xz"));         returns -1 as substring is not present
+
+            // loop through returned json members
+
+            var SearchedResult = {};
+
+            for(var key in allMembers){
+                let MemberEmail = allMembers[key]['email'];     // get email from each object
+                console.log(typeof(MemberEmail),MemberEmail);
+
+                if(MemberEmail.indexOf(email)!=-1){             // check if email in header is substring of email
+                     SearchedResult[key] = allMembers[key];     // in object
+                }
+                //console.log(MemberEmail)
             }
-            else{
-                response.status(200).json({member:null});
-            }
-        })
+            console.log(SearchedResult);
+
+            // return the 
+            
+            response.status(200).json({member:SearchedResult});
+
+
+
+
+
+            
         
+        })
         .then(function(){
-            console.log("success")
-
+            console.log("success");
         })
         .catch(function(error){
-            console.log(error)
+            console.log(error);
         })
+
+
+
+        
+
+
+        // ---------TRY 
+        
+
+
+        // OLD
+
+        // const MemberRef = db.ref("/Members/").child(socID).orderByChild('email').equalTo(email);
+
+        // MemberRef.once('value',function(snap){
+        //     if(snap.val()){
+        //         response.status(200).json({member:snap.val()});
+        //     }
+        //     else{
+        //         response.status(200).json({member:null});
+        //     }
+        // })
+        
+        // .then(function(){
+        //     console.log("success")
+
+        // })
+        // .catch(function(error){
+        //     console.log(error)
+        // })
+
+
+
     }
 
     //if contact is sent in request
     else if(contact){
-        const MemberRef = db.ref("/Members/").child(socID).orderByChild('contact').equalTo(contact);
 
-        MemberRef.once('value',function(snap){
-            if(snap.val()){
-                response.status(200).json({member:snap.val()});
+        const Membersref = db.ref("/Members/"+socID);
+    
+        Membersref.once('value',(snapshot) => {
+            var allMembers = snapshot.val();
+            //response.status(200).json({member: snapshot.val()});
+            console.log(allMembers);
+
+            //console.log("xyz".indexOf("yz"));         returns starting index ie 1 of string
+
+            //console.log("xyz".indexOf("xz"));         returns -1 as substring is not present
+
+            // loop through returned json members
+
+            var SearchedResult = {};
+
+            for(var key in allMembers){
+                let MemberContact = allMembers[key]['contact'];     // get email from each object
+
+                if(MemberContact.indexOf(contact)!=-1){             // check if email in header is substring of email
+                     SearchedResult[key] = allMembers[key];     // in object
+                }
+                //console.log(MemberEmail)
             }
-            else{
-                response.status(200).json({member:null});
-            }
-        })
+            console.log(SearchedResult);
+
+            // return the 
+            
+            response.status(200).json({member:SearchedResult});
+
         
+        })
         .then(function(){
-            console.log("success")
+            console.log("success");
         })
         .catch(function(error){
-            console.log(error)
-        }) 
+            console.log(error);
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        // const MemberRef = db.ref("/Members/").child(socID).orderByChild('contact').equalTo(contact);
+
+        // MemberRef.once('value',function(snap){
+        //     if(snap.val()){
+        //         response.status(200).json({member:snap.val()});
+        //     }
+        //     else{
+        //         response.status(200).json({member:null});
+        //     }
+        // })
+        
+        // .then(function(){
+        //     console.log("success")
+        // })
+        // .catch(function(error){
+        //     console.log(error)
+        // }) 
+
     }
 
     //if name is sent in request
     else if(name){
-        const MemberRef = db.ref("/Members/").child(socID).orderByChild('name').equalTo(name);
 
-        MemberRef.once('value',function(snap){
-            if(snap.val()){
-                response.status(200).json({member:snap.val()});
+
+        const Membersref = db.ref("/Members/"+socID);
+    
+        Membersref.once('value',(snapshot) => {
+            var allMembers = snapshot.val();
+            //response.status(200).json({member: snapshot.val()});
+            console.log(allMembers);
+
+            //console.log("xyz".indexOf("yz"));         returns starting index ie 1 of string
+
+            //console.log("xyz".indexOf("xz"));         returns -1 as substring is not present
+
+            // loop through returned json members
+
+            var SearchedResult = {};
+
+            for(var key in allMembers){
+                let MemberName = allMembers[key]['name'];     // get email from each object
+
+                if(MemberName.indexOf(name)!=-1){             // check if email in header is substring of email
+                     SearchedResult[key] = allMembers[key];     // in object
+                }
+                //console.log(MemberEmail)
             }
-            else{
-                response.status(200).json({member:null});
-            }
-        })
+            console.log(SearchedResult);
+
+            // return the 
+            
+            response.status(200).json({member:SearchedResult});
+
         
+        })
         .then(function(){
-            console.log("success")
+            console.log("success");
         })
         .catch(function(error){
-            console.log(error)
-        }) 
+            console.log(error);
+        })
+
+
+
+
+
+
+
+        // const MemberRef = db.ref("/Members/").child(socID).orderByChild('name').equalTo(name);
+
+        // MemberRef.once('value',function(snap){
+        //     if(snap.val()){
+        //         response.status(200).json({member:snap.val()});
+        //     }
+        //     else{
+        //         response.status(200).json({member:null});
+        //     }
+        // })
+        
+        // .then(function(){
+        //     console.log("success")
+        // })
+        // .catch(function(error){
+        //     console.log(error)
+        // }) 
     }
 
     else if(flatno){
-        const MemberRef = db.ref("/Members/").child(socID).orderByChild('flatno').equalTo(flatno);
 
-        MemberRef.once('value',function(snap){
-            if(snap.val()){
-                response.status(200).json({member:snap.val()});
+        const Membersref = db.ref("/Members/"+socID);
+    
+        Membersref.once('value',(snapshot) => {
+            var allMembers = snapshot.val();
+            //response.status(200).json({member: snapshot.val()});
+            console.log(allMembers);
+
+            //console.log("xyz".indexOf("yz"));         returns starting index ie 1 of string
+
+            //console.log("xyz".indexOf("xz"));         returns -1 as substring is not present
+
+            // loop through returned json members
+
+            var SearchedResult = {};
+
+            for(var key in allMembers){
+                let MemberFlat = allMembers[key]['flatno'];     // get email from each object
+
+                if(MemberFlat.indexOf(flatno)!=-1){             // check if email in header is substring of email
+                     SearchedResult[key] = allMembers[key];     // in object
+                }
+                //console.log(MemberEmail)
             }
-            else{
-                response.status(200).json({member:null});
-            }
-        })
+            console.log(SearchedResult);
+
+            // return the 
+            
+            response.status(200).json({member:SearchedResult});
+
         
+        })
         .then(function(){
-            console.log("success")
+            console.log("success");
         })
         .catch(function(error){
-            console.log(error)
-        }) 
+            console.log(error);
+        })
+
+
+        // const MemberRef = db.ref("/Members/").child(socID).orderByChild('flatno').equalTo(flatno);
+
+        // MemberRef.once('value',function(snap){
+        //     if(snap.val()){
+        //         response.status(200).json({member:snap.val()});
+        //     }
+        //     else{
+        //         response.status(200).json({member:null});
+        //     }
+        // })
+        
+        // .then(function(){
+        //     console.log("success")
+        // })
+        // .catch(function(error){
+        //     console.log(error)
+        // }) 
+
     }
     
 
@@ -705,7 +904,7 @@ export const updateFacility = functions.https.onRequest((request,response) => {
     })
   });
 
-  export const deleteFacility = functions.https.onRequest((request,response) => {
+export const deleteFacility = functions.https.onRequest((request,response) => {
     response.set('Access-Control-Allow-Origin', "*")
     response.set('Access-Control-Allow-Methods', 'GET, POST')
     const db = admin.database();
@@ -719,7 +918,7 @@ export const updateFacility = functions.https.onRequest((request,response) => {
     .catch(function(error){
         console.log(error);
     })
-  });
+});
 
 
 export const getFacilities = functions.https.onRequest((request,response) => {
